@@ -11,7 +11,7 @@ All selected ground motions are saved in two MATLAB structure variables,
 ```matlab
 for i = 1:NofGM % Number of Ground Motions
     for n = 1:NofComp % Number of Components
-        GM{n,i}.eq = ... % acceleration signail
+        GM{n,i}.eq = ... % acceleration signal
         GM{n,i}.dt = ... % time step
     end
     MetaData.M(i) = ... % Momment magnitude
