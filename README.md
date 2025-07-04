@@ -10,7 +10,7 @@ All selected ground motions are saved in two MATLAB structure variables,
 
 for i = 1:NumberofSelectedGM
 
-  GM(i).eq = ... % acceleration signail
+&nbsp;&nbsp;GM(i).eq = ... % acceleration signail
   
   GM(i).dt = ... %
  
