@@ -15,8 +15,8 @@ for i = 1:NofGM % Number of Ground Motions
         GM{n,i}.dt = ... % time step
     end
     MetaData.M(i) = ... % Momment magnitude
-    MetaData.VS30 = ... % Shear wave velocity
-    MetaData.R = ...    % source-to-site distance
+    MetaData.VS30(i) = ... % Shear wave velocity
+    MetaData.R(i) = ...    % source-to-site distance
     ...
 end
 ```
