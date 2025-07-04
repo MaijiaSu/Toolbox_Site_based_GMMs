@@ -7,13 +7,19 @@ This project provides a toolbox for fitting site-based stochastic ground motion 
 #  How to use this toolbox?
 ## I. Data Collection
 All selected ground motions are saved in two MATLAB structure variables, 
+
 for i = 1:NumberofSelectedGM
+
   GM(i).eq = ... % acceleration signail
+  
   GM(i).dt = ... %
  
   MetaData.M(i) = ... % Momment magnitude
+  
   MetaData.VS30 = ... % Shear wave velocity
+  
   MetaData.R = ...    % source-to-site distance
+  
 end
 
 
