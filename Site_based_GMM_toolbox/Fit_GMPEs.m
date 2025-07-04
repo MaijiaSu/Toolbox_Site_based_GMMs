@@ -6,8 +6,6 @@ Ndim = SiteGMM.Ndim;
 % [XX,Z_corr,explainTerm] = GetGMPEs_input(SiteGMM.MetaData);
 XX = GMPE_BasisFuns(ScenVar);
 
-
-
 %% inter-event
 uniqueEQID = unique(EQID);
 NofEQ = numel(uniqueEQID);

@@ -1,64 +1,99 @@
-function simGMs = SiteSGMGenerator(SiteGMM,ScenVar,NofsimGMs,dt)
-% Default Paramter
-% h = 6;
-% Ztor = 0;
-% f_fltz = Ztor;
-% f_fltz(Ztor<1) = 1;
-% f0  = 0; % srike-slip
-
-%%
-beta = SiteGMM.GMPEs.beta;
-Sigma2_T = SiteGMM.GMPEs.Sigma2_T;
-err_corrMat = SiteGMM.GMPEs.err_corrMat;
-x0 = SiteGMM.GMPEs.basisfuns(ScenVar);
+function [simGMs,simSGMPars] = SiteSGMGenerator(method,SiteGMM,ScenVar,NofsimGMs,dt)
 
 
-% 1.  GMPE mean
-Z_mean =  beta*x0(:);
+% method = 3;
+Ndim = SiteGMM.Ndim;
+switch method
+    %% Simulation#1
+    case 1
+        simSGMPars = SiteGMM.theta_GM;
+        NofsimGMs = SiteGMM.NofGM;
 
-% 2. GMPE residual
-Ndim = size(beta,1);
-CoV_ZZ = diag(sqrt(Sigma2_T))*err_corrMat*diag(sqrt(Sigma2_T));
-Z_error =  mvnrnd(zeros(Ndim,1),CoV_ZZ,NofsimGMs);
+    %% Simulation#2
+    case 2
+        if ~isfield(SiteGMM,'Pars_JointPDF')
+            SiteGMM = Fit_GMMPars_JointPDF(SiteGMM);
+        end
+        simSGMPars = uq_getSample(SiteGMM.Pars_JointPDF.UqLabInput,NofsimGMs,'MC');
 
-% 3. GMPE
-GMPE_pre = repmat(Z_mean,1,NofsimGMs)' + Z_error;
+    %% Simulation#3
+    case 3
+        % Default Paramter
+        % h = 6;
+        % Ztor = 0;
+        % f_fltz = Ztor;
+        % f_fltz(Ztor<1) = 1;
+        % f0  = 0; % srike-slip
+        beta = SiteGMM.GMPEs.beta;
+        Sigma2_T = SiteGMM.GMPEs.Sigma2_T;
+        err_corrMat = SiteGMM.GMPEs.err_corrMat;
+        x0 = SiteGMM.GMPEs.basisfuns(ScenVar);
 
-% 4. Transfrom back orignal space
-for nn = 1:SiteGMM.Ndim
-    CDF_XED_pre(:,nn) = normcdf(GMPE_pre(:,nn),0,1);
+        % 1.  GMPE mean
+        Z_mean =  beta*x0(:);
+
+        % 2. GMPE residual
+        CoV_ZZ = diag(sqrt(Sigma2_T))*err_corrMat*diag(sqrt(Sigma2_T));
+        Z_error =  mvnrnd(zeros(Ndim,1),CoV_ZZ,NofsimGMs);
+
+        % 3. GMPE
+        GMPE_pre = repmat(Z_mean,1,NofsimGMs)' + Z_error;
+
+        % 4. Transfrom back orignal space
+        for nn = 1:SiteGMM.Ndim
+            CDF_XED_pre(:,nn) = normcdf(GMPE_pre(:,nn),0,1);
+        end
+        simSGMPars = uq_all_invcdf(CDF_XED_pre, SiteGMM.Pars_JointPDF.UqLabInput.Marginals);
 end
-X_GMPE = uq_all_invcdf(CDF_XED_pre, SiteGMM.Pars_JointPDF.UqLabInput.Marginals);
 
-
-%% Bound the GMPE prediction
+% Bound the GMPE prediction
 % Loop through each dimension and clamp values to the specified bounds
 DisBounds = SiteGMM.Pars_JointPDF.DisBounds;
 for nn = 1:Ndim
     min_val = DisBounds(1,nn);  % Minimum bound for this dimension
     max_val = DisBounds(2,nn);  % Maximum bound for this dimension
     % Clamp values to the min and max bounds for this dimension
-    id1 = X_GMPE(:,nn)<min_val;
-    X_GMPE(id1, nn) = min_val;
-    id2 = X_GMPE(:,nn)>max_val;
-    X_GMPE(id2, nn) = max_val;
+    id1 = simSGMPars(:,nn)<min_val;
+    simSGMPars(id1, nn) = min_val;
+    id2 = simSGMPars(:,nn)>max_val;
+    simSGMPars(id2, nn) = max_val;
 end
 
-%% Generate GMs using predicted GM parmeters
+% Generate GMs using predicted GM parmeters
 NofWN = 1;
 NofComp = SiteGMM.NofComp;
 ndim =  SiteGMM.Ndim/NofComp;
 for nn = 1:NofComp
-    simGMpars{nn} = X_GMPE(:,(nn-1)*ndim+1:nn*ndim);
+    simGMpars{nn} = simSGMPars(:,(nn-1)*ndim+1:nn*ndim);
 end
+
+%%
 if NofComp >= 1
+    disp(['simualting: 1/',num2str(NofComp)])
     simGMs.H1 = SGMGenerator_simPar(SiteGMM.FitOption,simGMpars{1},dt);
-elseif  NofComp >= 2
+end
+if  NofComp >= 2
+    disp(['simualting: 2/',num2str(NofComp)])
     simGMs.H2 = SGMGenerator_simPar(SiteGMM.FitOption,simGMpars{2},dt);
-elseif  NofComp >= 3
+end
+if  NofComp >= 3
+    disp(['simualting: 3/',num2str(NofComp)])
     simGMs.V = SGMGenerator_simPar(SiteGMM.FitOption,simGMpars{3},dt);
 end
 simGMs.dt = dt;
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 % simGM_GMPE_marjor = SGMGenerator_simPar(SiteGMM.FitOption,GMpar_marjor,dt);
