@@ -8,31 +8,10 @@ This project provides a toolbox for fitting site-based stochastic ground motion 
 ## I. Data Collection
 All selected ground motions are saved in two MATLAB structure variables, 
 
-for i = ...:NofGM % Number of Ground Motion
+<pre> ```matlab for i = ...:NofGM % Number of Ground Motion for n = ...:NofComp % Number of Components GM{n,i}.eq = ... % acceleration signal GM{n,i}.dt = ... end MetaData.M(i) = ... % Moment magnitude MetaData.VS30 = ... % Shear wave velocity MetaData.R = ... % Source-to-site distance end ``` </pre>
 
-&nbsp;&nbsp;&nbsp;    for n = ...:NofComp % Number of Components
-        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GM{n,i}.eq = ... % acceleration signail
-       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; GM{n,i}.dt = ... %
-&nbsp;&nbsp;&nbsp;    end
 
-&nbsp;&nbsp;&nbsp;    MetaData.M(i) = ... % Momment magnitude
-&nbsp;&nbsp;&nbsp;    MetaData.VS30 = ... % Shear wave velocity
-&nbsp;&nbsp;&nbsp;    MetaData.R = ...    % source-to-site distance
-end
 
-for i = 1:NumberofSelectedGM
-
-&nbsp;&nbsp;&nbsp; GM(i).eq = ... % acceleration signal
-  
-&nbsp;&nbsp;&nbsp;  GM(i).dt = ... % sampling step
- 
-&nbsp;&nbsp;&nbsp;  MetaData.M(i) = ... % Momment magnitude
-  
-&nbsp;&nbsp;&nbsp;  MetaData.VS30 = ... % Shear wave velocity
-  
-&nbsp;&nbsp;&nbsp;  MetaData.R = ...    % source-to-site distance
-  
-end
 
 
 
